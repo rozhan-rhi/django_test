@@ -4,15 +4,13 @@ import asyncio
 from core.chatBot import ChatBot
 
 
-@shared_task
-def generate_summary(article_id):       #celery task
+@shared_task         #celery task for summerize and save to db
+def generate_summary(article_id):      
     article_data=ArticleModel.objects.filter(id=article_id).first()
-    print(article_data)
     chatbot = ChatBot()
     loop = asyncio.new_event_loop()  # Create a new async loop
     asyncio.set_event_loop(loop)  
     chatbot_summary = loop.run_until_complete(chatbot.summerize(article_data.description))  
-    print(chatbot_summary)
     article_data.summary=chatbot_summary
     article_data.save()
 
@@ -42,7 +40,6 @@ class ArticleModel(models.Model):
                 previous_description = article.description
 
         super().save(*args, **kwargs)  
-        print(previous_description)
         if is_new or (previous_description != self.description):
             generate_summary.delay(self.id)
             
@@ -60,5 +57,3 @@ class KnowledgeModel(models.Model):
 
     class Meta:
         db_table = "knowledge"
-
-
