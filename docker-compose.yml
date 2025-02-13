@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5485:5432"
+    networks:
+      - django_test_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - django_test_network
+
+volumes:
+  postgres_data:
+  
+
+networks:
+  django_test_network:
+    name: django_test_network  # Custom name for the network
+    driver: bridge
